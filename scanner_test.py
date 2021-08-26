@@ -6,7 +6,7 @@ from skimage.segmentation import flood, flood_fill
 # photos = ['scan.jpg','fundo_madeira.jpg','fundo_preto.jpg','fundo_teclado.jpg']
 
 # for i in photos:
-#
+# páulo bonitao
 #
 #     img = cv2.imread(i)
 #     # img = cv2.imread('fundo_madeira.jpg')
