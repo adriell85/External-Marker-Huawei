@@ -71,58 +71,127 @@ color = cv2.resize(color,dim,interpolation=cv2.INTER_AREA)
 binary_img = np.where(img > 250,255,0)
 binary_img = np.uint8(binary_img)
 
+kernel = np.ones((7,7),np.uint8)
+closing = cv2.morphologyEx(binary_img, cv2.MORPH_CLOSE, kernel)
+
+x = np.zeros(((width)-60,height-60,3),dtype=np.uint8)
+
+rows,cols = x.shape[:2]
+
+# x =
+
+for row in range(rows-2):
+    for col in range(cols-2):
+        x[row][col] = closing[row][col]
+
+canny = cv2.Canny(closing,10,50)
+
+black = np.zeros((width,height,3),dtype=np.uint8)
 
 
-Blur=cv2.GaussianBlur(binary_img,(5,5),1) #apply blur to roi
-Canny=cv2.Canny(Blur,10,50) #apply canny to roi
 
-#Find my contours
-contours =cv2.findContours(Canny,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)[0]
 
-black = np.zeros((width,height,3))
-black = cv2.resize(black,dim,interpolation=cv2.INTER_AREA)
+# nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(black, connectivity=8,ltype=cv2.CV_32S)
 
-#Loop through my contours to find rectangles and put them in a list, so i can view them individually later.
-cntrRect = []
-for i in contours:
-    # if cv2.contourArea(i) > 15:
-            epsilon = 0.05*cv2.arcLength(i,True)
-            approx = cv2.approxPolyDP(i,epsilon,True)
-            if len(approx) == 4:
-                cv2.drawContours(color,cntrRect,-1,(0,255,0),2)
-                cv2.drawContours(black, cntrRect, -1, (0, 255, 0), 2)
+contours,hierarchy =cv2.findContours(canny,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
 
-                cntrRect.append(approx)
-                # x, y, w, h = cv2.boundingRect(i)
-                # # Draw the rectangle
-                # cv2.rectangle(black, (x, y), (x + w, y + h), (255, 255, 0), 1)
+cv2.drawContours(black,contours,-1,(0,255,0),2)
 
-                cv2.imshow('Roi Rect ONLY', black)
-#===================================
-# Solução para capturar os 4 pontos
-# func_image = cv2.cvtColor(black,cv2.COLOR_BGR2GRAY)
+x, y, w, h = cv2.boundingRect(x)
+#   Draw the rectangle
+cv2.rectangle(black, (x, y), (x + w, y + h), (255, 255, 0), 1)
 #
-# nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8,ltype=cv2.CV_32S)
-# imgplot = ppl.imshow(output)
-# ppl.show()
-#==================================
-kernel = np.asarray([[0,1,0],
-          [1,1,1],
-          [0,1,0]],np.uint8)
-# kernel = np.ones((3,3),np.uint8)
-Canny = np.where(Canny > 200,255,0)
-Canny = np.uint8(Canny)
-Canny = cv2.dilate(Canny,kernel)
-light_coat = flood_fill(Canny, (155, 150), 255, tolerance=10)
-light_coat = np.uint8(light_coat)
 
-cont, hierarchy = cv2.findContours(light_coat,cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
-cv2.drawContours(light_coat, cont, -1, (0, 255, 0), 3)
+cv2.imshow('img',x)
+cv2.waitKey(0)
 
-x, y, w, h = cv2.boundingRect(light_coat)
-                # Draw the rectangle
-cv2.rectangle(light_coat, (x, y), (x + w, y + h), (255, 255, 0), 1)
+# edged = cv2.Canny(binary_img, 150, 200)
+#
+# contours =cv2.findContours(edged,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)[0]
+#
+# cntrRect = []
+# for i in contours:
+#     # if cv2.contourArea(i) > 15:
+#             epsilon = 0.05*cv2.arcLength(i,True)
+#             approx = cv2.approxPolyDP(i,epsilon,True)
+#             if len(approx) == 10:
+#                 cv2.drawContours(color,cntrRect,-1,(0,255,0),2)
+#                 cv2.drawContours(img, cntrRect, -1, (0, 255, 0), 2)
+#
+#                 cntrRect.append(approx)
+#                 # x, y, w, h = cv2.boundingRect(i)
+#                 # # Draw the rectangle
+#                 # cv2.rectangle(black, (x, y), (x + w, y + h), (255, 255, 0), 1)
+#
+#                 cv2.imshow('Roi Rect ONLY', img)
+#
+# cv2.imshow('binary',binary_img)
+# cv2.waitKey(0)
 
-cv2.imshow('image',light_coat)
-cv2.waitKey()
+
+
+
+# Blur=cv2.GaussianBlur(binary_img,(5,5),1) #apply blur to roi
+# Canny=cv2.Canny(Blur,10,50) #apply canny to roi
+#
+# #Find my contours
+# contours =cv2.findContours(Canny,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)[0]
+#
+# black = np.zeros((width,height,3))
+# black = cv2.resize(black,dim,interpolation=cv2.INTER_AREA)
+#
+# #Loop through my contours to find rectangles and put them in a list, so i can view them individually later.
+# cntrRect = []
+# for i in contours:
+#     # if cv2.contourArea(i) > 15:
+#             epsilon = 0.05*cv2.arcLength(i,True)
+#             approx = cv2.approxPolyDP(i,epsilon,True)
+#             if len(approx) == 4:
+#                 cv2.drawContours(color,cntrRect,-1,(0,255,0),2)
+#                 cv2.drawContours(black, cntrRect, -1, (0, 255, 0), 2)
+#
+#                 cntrRect.append(approx)
+#                 # x, y, w, h = cv2.boundingRect(i)
+#                 # # Draw the rectangle
+#                 # cv2.rectangle(black, (x, y), (x + w, y + h), (255, 255, 0), 1)
+#
+#                 # cv2.imshow('Roi Rect ONLY', black)
+# #===================================
+# # Solução para capturar os 4 pontos
+# # func_image = cv2.cvtColor(black,cv2.COLOR_BGR2GRAY)
+# #
+# # nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8,ltype=cv2.CV_32S)
+# # imgplot = ppl.imshow(output)
+# # ppl.show()
+# #==================================
+# kernel = np.asarray([[0,1,0],
+#           [1,1,1],
+#           [0,1,0]],np.uint8)
+# # kernel = np.ones((3,3),np.uint8)
+# Canny = np.where(Canny > 200,255,0)
+# Canny = np.uint8(Canny)
+# Canny = cv2.dilate(Canny,kernel)
+# light_coat = flood_fill(Canny, (155, 150), 255, tolerance=10)
+# light_coat = np.uint8(light_coat)
+#
+#
+#
+# light_coat = np.uint8(np.where(light_coat == 255,0,255))
+# img_roi = np.zeros((width,height,3),dtype=np.uint8)
+# img_roi = cv2.resize(img_roi,dim, interpolation=cv2.INTER_AREA)
+#
+# # if width>height:
+# #     k = width
+# # else:
+# #     k = height
+# #
+# # for x,y in range(width,height):
+# #         cv2.rectangle(img_roi, (0, 0), (0 + width-x, 0 + height-x), (0, 255, 0), 2)
+# #         cv2.imshow('img_roi', img_roi)
+# #         cv2.waitKey(100)
+#
+#
+# cv2.imshow('image',color)
+#
+# cv2.waitKey()
 
