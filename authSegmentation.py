@@ -1,6 +1,6 @@
 from numba import njit
 import cv2
-from pynput.mouse import Controller
+# from pynput.mouse import Controller
 import numpy as np
 
 
@@ -57,7 +57,7 @@ def kmeans_segmentation(img, K):
 #
 #
 #
-img = cv2.imread('fundo_preto.jpg',1)
+img = cv2.imread('output.jpg',1)
 scale_percent = 20  # percent of original size
 width = int(img.shape[1] * scale_percent / 100)
 height = int(img.shape[0] * scale_percent / 100)

@@ -3,11 +3,13 @@ import matplotlib.pyplot as ppl
 import numpy as np
 from skimage.segmentation import flood, flood_fill
 
-color = cv2.imread('scan.jpg',1)
+color = cv2.imread('cnh1.jpg',1)
 img = cv2.cvtColor(color,cv2.COLOR_BGR2GRAY)
-scale_percent = 40  # percent of original size
-width = int(img.shape[1] * scale_percent / 100)
-height = int(img.shape[0] * scale_percent / 100)
+original_width = int(img.shape[0])
+original_height = int(img.shape[1])
+scale_percent = 60  # percent of original size
+width = int(img.shape[0] * scale_percent / 100)
+height = int(img.shape[1] * scale_percent / 100)
 dim = (width, height)
 img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 color = cv2.resize(color,dim,interpolation=cv2.INTER_AREA)
@@ -26,6 +28,8 @@ black = cv2.resize(black,dim,interpolation=cv2.INTER_AREA)
 
 
 contours,hierarchy =cv2.findContours(binary_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+
 cv2.drawContours(black,contours,-1,(0,255,0),2)
 
 
@@ -49,7 +53,7 @@ light_coat = np.uint8(np.where(light_coat==0,255,0))
 
 light_coat = cv2.morphologyEx(light_coat, cv2.MORPH_OPEN, kernel)
 
-
+light_coat = cv2.resize(light_coat,(original_height,original_width),interpolation=cv2.INTER_AREA)
 
 contours,hierarchy =cv2.findContours(light_coat,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
@@ -63,9 +67,13 @@ rect = cv2.minAreaRect(max_value_contour)
 box = cv2.boxPoints(rect)
 box = box.astype('int')
 
-img_copy = img.copy()
-img_box_2 = cv2.drawContours(black, contours = [box],
+img_output = np.zeros((original_width,original_height,3),dtype=np.uint8)
+
+img_box_2 = cv2.drawContours(img_output, contours = [box],
                              contourIdx = -1,  color = (0, 0, 255), thickness = 2)
 
-cv2.imshow('img',black)
+print(box)
+cv2.imshow('output',img_box_2)
+
+cv2.imwrite('output.jpg',img_box_2)
 cv2.waitKey(0)
